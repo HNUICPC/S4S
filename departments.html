@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأقسام — Student4Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="nav-mount"></div>
+
+<main>
+  <div class="page-header fade-up">
+    <div class="breadcrumb">
+      <a href="index.html">الرئيسية</a>
+      <span>›</span>
+      <span>الأقسام</span>
+    </div>
+    <h1>كليات الهندسة</h1>
+  </div>
+
+  <div class="cards-grid fade-up fade-up-delay-1" id="depts-grid" style="padding: 0 5% 60px;"></div>
+</main>
+
+<div id="footer-mount"></div>
+<div id="modal-mount"></div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = navHtml();
+document.getElementById('footer-mount').innerHTML = footerHtml();
+document.getElementById('modal-mount').innerHTML = modalHtml();
+initModal();
+
+const grid = document.getElementById('depts-grid');
+Object.entries(DEPTS).forEach(([key, d]) => {
+  const totalCourses = Object.values(COURSES[key] || {}).reduce((sum, sems) =>
+    sum + Object.values(sems).reduce((s2, arr) => s2 + arr.length, 0), 0);
+  grid.innerHTML += `
+    <a class="dept-card" href="levels.html?dept=${key}">
+      <div class="dept-icon">${d.icon}</div>
+      <h3>${d.name}</h3>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0.2rem 0 0.5rem;">${d.nameAr}</p>
+      <span class="count">${totalCourses} كورس</span>
+    </a>`;
+});
+</script>
+</body>
+</html>

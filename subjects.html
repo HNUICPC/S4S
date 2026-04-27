@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المواد — Student4Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="nav-mount"></div>
+
+<main>
+  <div class="page-header fade-up">
+    <div class="breadcrumb">
+      <a href="index.html">الرئيسية</a>
+      <span>›</span>
+      <a href="departments.html">الأقسام</a>
+      <span>›</span>
+      <a id="dept-link" href="#">—</a>
+      <span>›</span>
+      <a id="level-link" href="#">—</a>
+      <span>›</span>
+      <span id="sem-crumb"></span>
+    </div>
+    <h1 id="page-title">المواد الدراسية</h1>
+  </div>
+
+  <div class="subjects-grid fade-up fade-up-delay-1" id="subjects-grid"></div>
+</main>
+
+<div id="footer-mount"></div>
+<div id="modal-mount"></div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = navHtml();
+document.getElementById('footer-mount').innerHTML = footerHtml();
+document.getElementById('modal-mount').innerHTML = modalHtml();
+initModal();
+
+const dept = getParam('dept') || 'cs';
+const level = getParam('level') || '1';
+const sem = getParam('sem') || '1';
+const d = DEPTS[dept];
+const levelLabels = { 0:'المستوى صفر', 1:'المستوى الأول', 2:'المستوى الثاني', 3:'المستوى الثالث', 4:'المستوى الرابع' };
+
+document.getElementById('dept-link').textContent = d.name;
+document.getElementById('dept-link').href = `levels.html?dept=${dept}`;
+document.getElementById('level-link').textContent = levelLabels[level];
+document.getElementById('level-link').href = `semesters.html?dept=${dept}&level=${level}`;
+document.getElementById('sem-crumb').textContent = `الترم ${sem == 1 ? 'الأول' : 'الثاني'}`;
+
+const subjects = COURSES[dept]?.[level]?.[sem] || [];
+const grid = document.getElementById('subjects-grid');
+
+if (!subjects.length) {
+  grid.innerHTML = `<div class="empty-state"><div class="big">📭</div><p>لا توجد مواد لهذا الترم حتى الآن.</p></div>`;
+} else {
+  subjects.forEach((c, i) => {
+    const rating = (4.7 + Math.random() * 0.3).toFixed(1);
+    const priceStr = c.price === 0 ? 'مجاني' : `$${c.price}`;
+    const icon = getIcon(i);
+    const params = `dept=${dept}&level=${level}&sem=${sem}&code=${c.code}`;
+    grid.innerHTML += `
+      <div class="subject-card" onclick="window.location='course.html?${params}'">
+        <div class="rating">⭐ ${rating}</div>
+        <div class="subj-icon">${icon}</div>
+        <h3>${c.name}</h3>
+        <div class="code">${c.code} · ${c.ch} ساعات</div>
+        <div class="instructor">
+          <div class="avatar">${c.instructor.charAt(3)}</div>
+          ${c.instructor}
+        </div>
+        <div class="price-row">
+          <span class="price">${priceStr}</span>
+          <button class="btn-enroll" onclick="event.stopPropagation(); window.location='course.html?${params}'">التفاصيل</button>
+        </div>
+      </div>`;
+  });
+}
+</script>
+</body>
+</html>

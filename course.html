@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الكورس — Student4Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="nav-mount"></div>
+
+<main>
+  <div class="page-header fade-up">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <h1 id="course-title">—</h1>
+    <div style="display:flex;gap:0.8rem;align-items:center;margin-top:0.8rem;flex-wrap:wrap;">
+      <span class="tag" id="course-code-tag"></span>
+      <span class="tag" id="course-ch-tag"></span>
+      <span style="color:var(--gold);font-size:0.9rem;" id="course-rating"></span>
+    </div>
+  </div>
+
+  <div class="course-layout fade-up fade-up-delay-1">
+    <div>
+      <div class="video-wrap">
+        <div class="video-overlay-title" id="video-label">محاضرة تعريفية</div>
+        <div class="play-btn" id="play-btn" onclick="playVideo()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+        <iframe id="video-frame" width="100%" height="100%" style="display:none;border:none;" allowfullscreen></iframe>
+      </div>
+
+      <div class="course-desc">
+        <h2>محتوى الكورس</h2>
+        <p id="course-desc-text"></p>
+      </div>
+
+      <div class="course-desc">
+        <h2>المتطلب السابق</h2>
+        <p id="prereq-text" style="color:var(--accent3);font-weight:600;"></p>
+      </div>
+
+      <div class="qa-card">
+        <h3>أسئلة وأجوبة</h3>
+        <div class="qa-item">
+          <div class="qa-q">هل يوجد امتحانات تجريبية؟</div>
+          <div class="qa-a">نعم، كل كورس يحتوي على بنك أسئلة وامتحانات تجريبية من سنوات سابقة.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">كيف أتواصل مع المدرس؟</div>
+          <div class="qa-a">بعد التسجيل ستحصل على رقم واتساب المدرس للتواصل المباشر.</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">هل الشرح بالعربي أم إنجليزي؟</div>
+          <div class="qa-a">الشرح بالعربية الدارجة مع استخدام المصطلحات الإنجليزية الأكاديمية.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="toc-card">
+        <h3>محتوى الكورس</h3>
+        <div id="toc-list"></div>
+      </div>
+
+      <div class="pay-card">
+        <div class="price-big" id="price-display">—</div>
+        <button class="btn-pay" id="pay-btn" onclick="handlePay()">ادفع دلوقتي</button>
+        <p style="font-size:0.78rem;color:var(--muted);text-align:center;">دفع آمن · ضمان استرداد 7 أيام</p>
+      </div>
+
+      <div class="toc-card" style="margin-top:1rem;">
+        <h3>مدرس الكورس</h3>
+        <div style="display:flex;align-items:center;gap:0.8rem;margin-top:0.5rem;">
+          <div class="avatar" id="inst-avatar" style="width:40px;height:40px;font-size:1rem;"></div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;" id="inst-name"></div>
+            <div style="font-size:0.78rem;color:var(--muted);">طالب متفوق · دفعة 2024</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="footer-mount"></div>
+<div id="modal-mount"></div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = navHtml();
+document.getElementById('footer-mount').innerHTML = footerHtml();
+document.getElementById('modal-mount').innerHTML = modalHtml();
+initModal();
+
+const dept = getParam('dept') || 'cs';
+const level = getParam('level') || '1';
+const sem = getParam('sem') || '1';
+const code = getParam('code') || '';
+const d = DEPTS[dept];
+const levelLabels = { 0:'صفر', 1:'الأول', 2:'الثاني', 3:'الثالث', 4:'الرابع' };
+
+const subjects = COURSES[dept]?.[level]?.[sem] || [];
+const course = subjects.find(c => c.code === code) || subjects[0];
+
+if (course) {
+  document.title = `${course.name} — Student4Student`;
+  document.getElementById('course-title').textContent = course.name;
+  document.getElementById('course-code-tag').textContent = course.code;
+  document.getElementById('course-ch-tag').textContent = `${course.ch} ساعات معتمدة`;
+  document.getElementById('course-rating').textContent = `⭐ ${(4.7 + Math.random()*0.3).toFixed(1)} تقييم`;
+
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = `
+    <a href="index.html">الرئيسية</a><span>›</span>
+    <a href="departments.html">الأقسام</a><span>›</span>
+    <a href="levels.html?dept=${dept}">${d.name}</a><span>›</span>
+    <a href="semesters.html?dept=${dept}&level=${level}">المستوى ${levelLabels[level]}</a><span>›</span>
+    <a href="subjects.html?dept=${dept}&level=${level}&sem=${sem}">الترم ${sem==1?'الأول':'الثاني'}</a><span>›</span>
+    <span>${course.name}</span>`;
+
+  const priceStr = course.price === 0 ? 'مجاني' : `$${course.price}`;
+  document.getElementById('price-display').textContent = priceStr;
+
+  const payBtn = document.getElementById('pay-btn');
+  if (course.price === 0) {
+    payBtn.textContent = 'سجل مجاناً';
+    payBtn.style.background = 'linear-gradient(135deg, var(--green), #059669)';
+  }
+
+  document.getElementById('course-desc-text').textContent =
+    `كورس ${course.name} مقدم من طلاب متفوقين في قسم ${d.nameAr}. يغطي الكورس جميع المحاور الأساسية للمادة مع شرح مبسط وأمثلة تطبيقية وأسئلة امتحانات سابقة. الكورس موجه لطلاب المستوى ${levelLabels[level]} الترم ${sem==1?'الأول':'الثاني'}.`;
+
+  document.getElementById('prereq-text').textContent = 'لا يوجد متطلب سابق';
+
+  document.getElementById('inst-name').textContent = course.instructor;
+  document.getElementById('inst-avatar').textContent = course.instructor.charAt(3);
+
+  const tocTopics = [
+    { title: 'المقدمة', time: '5:20' },
+    { title: 'قواعد النهايات', time: '12:30' },
+    { title: 'تطبيقات', time: '18:15' },
+    { title: 'أسئلة امتحانات', time: '25:00' },
+    { title: 'مراجعة شاملة', time: '35:40' }
+  ];
+  const toc = document.getElementById('toc-list');
+  tocTopics.forEach((t,i) => {
+    toc.innerHTML += `
+      <div class="toc-item">
+        <span>${i+1}. ${t.title}</span>
+        <span class="toc-time">(${t.time})</span>
+      </div>`;
+  });
+
+  document.getElementById('video-label').textContent = `${course.name} - شرح`;
+}
+
+function playVideo() {
+  document.getElementById('play-btn').style.display = 'none';
+  document.getElementById('video-label').style.display = 'none';
+  const f = document.getElementById('video-frame');
+  f.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
+  f.style.display = 'block';
+}
+
+function handlePay() {
+  const price = course?.price || 0;
+  if (price === 0) {
+    showModal('تم التسجيل بنجاح! 🎉', `تم تسجيلك في كورس "${course?.name}". ستصلك رسالة على الواتساب قريباً.`);
+  } else {
+    showModal('تم استلام طلبك! ✅', `سيتم التواصل معك لإتمام الدفع لكورس "${course?.name}" بسعر $${price}.`);
+  }
+}
+</script>
+</body>
+</html>

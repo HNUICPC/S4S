@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الترمات — Student4Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="nav-mount"></div>
+
+<main>
+  <div class="page-header fade-up">
+    <div class="breadcrumb">
+      <a href="index.html">الرئيسية</a>
+      <span>›</span>
+      <a href="departments.html">الأقسام</a>
+      <span>›</span>
+      <a id="dept-link" href="#">—</a>
+      <span>›</span>
+      <span id="level-crumb"></span>
+    </div>
+    <h1>اختر الترم</h1>
+  </div>
+
+  <div class="sem-grid fade-up fade-up-delay-1" id="sem-grid"></div>
+</main>
+
+<div id="footer-mount"></div>
+<div id="modal-mount"></div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = navHtml();
+document.getElementById('footer-mount').innerHTML = footerHtml();
+document.getElementById('modal-mount').innerHTML = modalHtml();
+initModal();
+
+const dept = getParam('dept') || 'cs';
+const level = getParam('level') || '1';
+const d = DEPTS[dept];
+const levelLabels = { 0:'المستوى صفر', 1:'المستوى الأول', 2:'المستوى الثاني', 3:'المستوى الثالث', 4:'المستوى الرابع' };
+
+document.getElementById('dept-link').textContent = d.name;
+document.getElementById('dept-link').href = `levels.html?dept=${dept}`;
+document.getElementById('level-crumb').textContent = levelLabels[level];
+
+const grid = document.getElementById('sem-grid');
+const sems = COURSES[dept]?.[level] ? Object.keys(COURSES[dept][level]) : ['1','2'];
+
+sems.forEach(s => {
+  grid.innerHTML += `
+    <a class="sem-card" href="subjects.html?dept=${dept}&level=${level}&sem=${s}">
+      <h2>الترم ${s == 1 ? 'الأول' : 'الثاني'}</h2>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:0.5rem;">${(COURSES[dept]?.[level]?.[s] || []).length} مادة</p>
+    </a>`;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المستويات — Student4Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="nav-mount"></div>
+
+<main>
+  <div class="page-header fade-up" id="page-header">
+    <div class="breadcrumb">
+      <a href="index.html">الرئيسية</a>
+      <span>›</span>
+      <a href="departments.html">الأقسام</a>
+      <span>›</span>
+      <span id="dept-crumb"></span>
+    </div>
+    <h1 id="page-title">اختر المستوى</h1>
+  </div>
+
+  <div class="level-grid fade-up fade-up-delay-1" id="levels-grid"></div>
+</main>
+
+<div id="footer-mount"></div>
+<div id="modal-mount"></div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = navHtml();
+document.getElementById('footer-mount').innerHTML = footerHtml();
+document.getElementById('modal-mount').innerHTML = modalHtml();
+initModal();
+
+const dept = getParam('dept') || 'cs';
+const d = DEPTS[dept];
+document.getElementById('dept-crumb').textContent = d.name;
+
+const grid = document.getElementById('levels-grid');
+const levelLabels = { 0:'المستوى صفر', 1:'المستوى الأول', 2:'المستوى الثاني', 3:'المستوى الثالث', 4:'المستوى الرابع' };
+d.levels.forEach(lvl => {
+  grid.innerHTML += `
+    <a class="level-card" href="semesters.html?dept=${dept}&level=${lvl}">
+      <div class="level-num">${lvl}</div>
+      <div class="level-label">${levelLabels[lvl]}</div>
+    </a>`;
+});
+</script>
+</body>
+</html>
